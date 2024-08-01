@@ -3,26 +3,17 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework.response import Response
-from backProzone.models import Employee, Profile
 from django.contrib.auth.models import User
-from .serializer import EmployeeSerializer, ProfileSerializer, UserSerializer, CustomTokenObtainPairSerializer
+from .serializer import *
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
 import logging
+from backProzone.models import *
+from datetime import datetime, timedelta
+from django.db.models import Count
+from django.db.models.functions import TruncWeek
 
-from backProzone.models import (
-    col_departamento, col_roles, prd_Almacen, prd_contacto_proveedor,
-    prd_categorias, prd_producto, prd_lotes, prd_producto_catalogo, pd_clientes, 
-    pd_pedidos, ped_detalles_pedido, env_vehiculos, env_rutas, env_tipo_vehiculo,
-    env_conductores, env_conductores_vehiculos, env_envio, env_estado_envio, env_historial_envios
-)
-from .serializer import (
-    ColDepartamentoSerializer, ColRolesSerializer, PrdAlmacenSerializer, PrdContactoProveedorSerializer,
-    PrdCategoriasSerializer, PrdProductoSerializer, PrdLotesSerializer, PrdProductoCatalogoSerializer,
-    PdClientesSerializer, PdPedidosSerializer, PedDetallesPedidoSerializer, EnvVehiculosSerializer,
-    EnvRutasSerializer, EnvTipoVehiculoSerializer, EnvConductoresSerializer, EnvConductoresVehiculosSerializer,
-    EnvEnvioSerializer, EnvEstadoEnvioSerializer, EnvHistorialEnviosSerializer
-)
+six_weeks_ago = datetime.now() - timedelta(weeks=6)
 
 logger = logging.getLogger(__name__)
 
@@ -228,3 +219,107 @@ class EnvHistorialEnviosList(generics.ListCreateAPIView):
 class EnvHistorialEnviosDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = env_historial_envios.objects.all()
     serializer_class = EnvHistorialEnviosSerializer   
+
+
+class PdClientesList(generics.ListCreateAPIView):
+    queryset = pd_clientes.objects.all()
+    serializer_class = PdClientesSerializer
+
+class PdClientesDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = pd_clientes.objects.all()
+    serializer_class = PdClientesSerializer
+
+class PdPedidosList(generics.ListCreateAPIView):
+    queryset = pd_pedidos.objects.all()
+    serializer_class = PdPedidosSerializer
+
+class PdPedidosDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = pd_pedidos.objects.all()
+    serializer_class = PdPedidosSerializer
+
+class PedDetallesPedidoList(generics.ListCreateAPIView):
+    queryset = ped_detalles_pedido.objects.all()
+    serializer_class = PedDetallesPedidoSerializer
+
+class PedDetallesPedidoDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ped_detalles_pedido.objects.all()
+    serializer_class = PedDetallesPedidoSerializer
+
+class EnvVehiculosList(generics.ListCreateAPIView):
+    queryset = env_vehiculos.objects.all()
+    serializer_class = EnvVehiculosSerializer
+
+class EnvVehiculosDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = env_vehiculos.objects.all()
+    serializer_class = EnvVehiculosSerializer
+
+class EnvRutasList(generics.ListCreateAPIView):
+    queryset = env_rutas.objects.all()
+    serializer_class = EnvRutasSerializer
+
+class EnvRutasDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = env_rutas.objects.all()
+    serializer_class = EnvRutasSerializer
+
+class EnvTipoVehiculoList(generics.ListCreateAPIView):
+    queryset = env_tipo_vehiculo.objects.all()
+    serializer_class = EnvTipoVehiculoSerializer
+
+class EnvTipoVehiculoDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = env_tipo_vehiculo.objects.all()
+    serializer_class = EnvTipoVehiculoSerializer
+
+class EnvConductoresList(generics.ListCreateAPIView):
+    queryset = env_conductores.objects.all()
+    serializer_class = EnvConductoresSerializer
+
+class EnvConductoresDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = env_conductores.objects.all()
+    serializer_class = EnvConductoresSerializer
+
+class EnvConductoresVehiculosList(generics.ListCreateAPIView):
+    queryset = env_conductores_vehiculos.objects.all()
+    serializer_class = EnvConductoresVehiculosSerializer
+
+class EnvConductoresVehiculosDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = env_conductores_vehiculos.objects.all()
+    serializer_class = EnvConductoresVehiculosSerializer
+
+class EnvEnvioList(generics.ListCreateAPIView):
+    queryset = env_envio.objects.all()
+    serializer_class = EnvEnvioSerializer
+
+class EnvEnvioDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = env_envio.objects.all()
+    serializer_class = EnvEnvioSerializer
+
+class EnvEstadoEnvioList(generics.ListCreateAPIView):
+    queryset = env_estado_envio.objects.all()
+    serializer_class = EnvEstadoEnvioSerializer
+
+class EnvEstadoEnvioDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = env_estado_envio.objects.all()
+    serializer_class = EnvEstadoEnvioSerializer
+
+class EnvHistorialEnviosList(generics.ListCreateAPIView):
+    queryset = env_historial_envios.objects.all()
+    serializer_class = EnvHistorialEnviosSerializer
+
+class EnvHistorialEnviosDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = env_historial_envios.objects.all()
+    serializer_class = EnvHistorialEnviosSerializer
+
+class PdPedidosWeeklyCountView(APIView):
+    def get(self, request):
+        six_weeks_ago = datetime.now() - timedelta(weeks=6)
+        weekly_counts = pd_pedidos.objects.filter(
+            fecha_pedido__gte=six_weeks_ago
+        ).annotate(
+            week_start=TruncWeek('fecha_pedido')
+        ).values(
+            'week_start'
+        ).annotate(
+            pedidos_count=Count('id')
+        ).order_by('-week_start')
+
+        return Response(weekly_counts)

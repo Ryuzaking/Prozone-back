@@ -1,11 +1,6 @@
 # serializer.py
 from rest_framework import serializers
-from backProzone.models import (
-    col_departamento, col_roles, Employee, Profile, prd_Almacen, prd_contacto_proveedor,
-    prd_categorias, prd_producto, prd_lotes, prd_producto_catalogo, pd_clientes, 
-    pd_pedidos, ped_detalles_pedido, env_vehiculos, env_rutas, env_tipo_vehiculo,
-    env_conductores, env_conductores_vehiculos, env_envio, env_estado_envio, env_historial_envios
-)
+from backProzone.models import *
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -85,6 +80,61 @@ class PrdLotesSerializer(serializers.ModelSerializer):
 class PrdProductoCatalogoSerializer(serializers.ModelSerializer):
     class Meta:
         model = prd_producto_catalogo
+        fields = '__all__'
+
+class PdClientesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = pd_clientes
+        fields = '__all__'
+
+class PdPedidosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = pd_pedidos
+        fields = '__all__'
+
+class PedDetallesPedidoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ped_detalles_pedido
+        fields = '__all__'
+
+class EnvVehiculosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = env_vehiculos
+        fields = '__all__'
+
+class EnvRutasSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = env_rutas
+        fields = '__all__'
+
+class EnvTipoVehiculoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = env_tipo_vehiculo
+        fields = '__all__'
+
+class EnvConductoresSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = env_conductores
+        fields = '__all__'
+
+class EnvConductoresVehiculosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = env_conductores_vehiculos
+        fields = '__all__'
+
+class EnvEnvioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = env_envio
+        fields = '__all__'
+
+class EnvEstadoEnvioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = env_estado_envio
+        fields = '__all__'
+
+class EnvHistorialEnviosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = env_historial_envios
         fields = '__all__'
 
 class PdClientesSerializer(serializers.ModelSerializer):
